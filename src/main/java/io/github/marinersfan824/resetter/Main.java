@@ -3,6 +3,7 @@ package io.github.marinersfan824.resetter;
 import com.google.gson.Gson;
 import org.apache.commons.io.FileUtils;
 import java.io.*;
+import java.util.Properties;
 import java.util.Scanner;
 
 public class Main {
@@ -39,8 +40,18 @@ public class Main {
         String jarName = sc.nextLine().replace(".jar", "");
         ServerJar serverJar = new ServerJar(jarName);
 
+        // Get whether or not to use a seed
+        System.out.println("Would you like to use a seed?");
+        String useSeed = sc.nextLine();
+        boolean useSeed1;
+        if (useSeed.equalsIgnoreCase("yes")) {
+            useSeed1 = true;
+        } else {
+            useSeed1 = false;
+        }
+
         // Create the config and save it as json in a file
-        Config config = new Config(world, serverJar);
+        Config config = new Config(world, serverJar, useSeed1);
         Gson gson = new Gson();
         BufferedWriter writer = new BufferedWriter(new FileWriter("config.json"));
         String json = gson.toJson(config);
@@ -54,6 +65,12 @@ public class Main {
         Gson gson = new Gson();
         BufferedReader reader = new BufferedReader(new FileReader("config.json"));
         Config config = gson.fromJson(reader, Config.class);
+        if (config.getUseSeed()) {
+            System.out.println("What seed would you like to use?");
+            Scanner sc = new Scanner(System.in);
+            Seed seed = new Seed(sc.nextLine());
+
+        }
         reader.close();
         return config;
     }
@@ -73,11 +90,12 @@ public class Main {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        while (running) {
+        while (true) {
             System.out.println("Type 'reset' to reset and 'quit' to exit");
             if (sc.nextLine().equalsIgnoreCase("reset")) {
                 System.out.println("Resetting...");
-                reset(config);
+                loadConfig();
+                //reset(config);
             } else if (sc.nextLine().equalsIgnoreCase("quit")) {
                 System.out.println("I'm sorry, I either didn't understand or you exited");
                 break;
@@ -109,14 +127,24 @@ class World {
         return worldName;
     }
 }
+class Seed {
+    private String seed;
+
+    public Seed(String seed) {
+        this.seed = seed;
+    }
+}
 
 class Config {
     private ServerJar serverJar;
     private World world;
+    private boolean useSeed;
+    private String seed;
 
-    public Config(World world, ServerJar serverJar) {
+    public Config(World world, ServerJar serverJar, boolean useSeed) {
         this.serverJar = serverJar;
         this.world = world;
+        this.useSeed = useSeed;
     }
 
     public ServerJar getServerJar() {
@@ -125,5 +153,11 @@ class Config {
 
     public World getWorld() {
         return world;
+    }
+    public String getSeed() {
+        return seed;
+    }
+    public boolean getUseSeed() {
+        return useSeed;
     }
 }
