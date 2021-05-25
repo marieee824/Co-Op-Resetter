@@ -68,15 +68,21 @@ public class Main {
         if (config.getUseSeed()) {
             System.out.println("What seed would you like to use?");
             Scanner sc = new Scanner(System.in);
-            Seed seed = new Seed(sc.nextLine());
+            Properties properties = new Properties();
+            FileInputStream fileInputStream = new FileInputStream("server.properties");
+            properties.load(fileInputStream);
+            fileInputStream.close();
 
+            FileOutputStream fileOutputStream = new FileOutputStream("server.properties");
+            properties.setProperty("level-seed", sc.nextLine());
+            properties.store(fileOutputStream, null);
+            fileOutputStream.close();
         }
         reader.close();
         return config;
     }
 
     public static void reset(Config config) throws IOException {
-        boolean running = true;
         Scanner sc = new Scanner(System.in);
         Runtime runtime = Runtime.getRuntime();
         String worldName = config.getWorld().getWorldName();
@@ -95,7 +101,6 @@ public class Main {
             if (sc.nextLine().equalsIgnoreCase("reset")) {
                 System.out.println("Resetting...");
                 loadConfig();
-                //reset(config);
             } else if (sc.nextLine().equalsIgnoreCase("quit")) {
                 System.out.println("I'm sorry, I either didn't understand or you exited");
                 break;
